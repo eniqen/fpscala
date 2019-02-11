@@ -89,28 +89,28 @@ object List {
 sealed trait List[+A]
 case object Nil extends List[Nothing]
 case class Cons[+A](head: A, tail: List[A]) extends List[A]
-
-
-val x = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
-val fInc: Int => Int = _ + 1
-val fToString: Int => String = _.toString
-
-List.append(x, Nil)
-
-List.foldRight(x, Nil: List[Int])(Cons(_, _))
-List.reverse(x)
-
-List.foldLeft(x, 0)(_ - _)
-List.foldLeftViaFoldRight(x, 0)(_ - _)
-
-List.foldRight(x, 0)(_ - _)
-List.foldRightViaFoldLeft(x, 0)(_ - _)
-
-List.map(x)(fInc)
-List.map(x)(fToString)
-
-List.flatMap(List(1,2,3,4))(x => List(x, x))
-
-List.zipWith(x, x)(_ + _)
-
-List.hasSubsequence(Nil, List(6))
+//
+//
+//val x = Cons(1, Cons(2, Cons(3, Cons(4, Cons(5, Nil)))))
+//val fInc: Int => Int = _ + 1
+//val fToString: Int => String = _.toString
+//
+//List.append(x, Nil)
+//
+//List.foldRight(x, Nil: List[Int])(Cons(_, _))
+//List.reverse(x)
+//
+//List.foldLeft(x, 0)(_ - _)
+//List.foldLeftViaFoldRight(x, 0)(_ - _)
+//
+//List.foldRight(x, 0)(_ - _)
+//List.foldRightViaFoldLeft(x, 0)(_ - _)
+//
+//List.map(x)(fInc)
+//List.map(x)(fToString)
+//
+//List.flatMap(List(1,2,3,4))(x => List(x, x))
+//
+//List.zipWith(x, x)(_ + _)
+//
+//List.hasSubsequence(Nil, List(6))

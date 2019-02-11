@@ -1,4 +1,4 @@
-package error_handling
+package org.bitbucket.error_handling
 
 import scala.{Either => _}
 

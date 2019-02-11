@@ -3,4 +3,3 @@
   */
 object ErrorHandling extends App {
 }
-

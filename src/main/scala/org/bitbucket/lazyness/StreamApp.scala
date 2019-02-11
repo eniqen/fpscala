@@ -1,4 +1,4 @@
-package lazyness
+package org.bitbucket.lazyness
 
 import scala.annotation.tailrec
 
@@ -6,6 +6,8 @@ import scala.annotation.tailrec
   * @author Mikhail Nemenko { @literal <nemenkoma@gmail.com>}
   */
 object StreamApp extends App {
+
+  import scala.util.control.TailCalls
   import Stream._
   private val stream: Stream[Int] =
     cons(5, cons(6, cons(7, cons(8, cons(9, empty)))))
@@ -21,7 +23,14 @@ object StreamApp extends App {
   println(stream.filter(_ % 2 == 0).toList)
   println(stream.append(stream).toList)
   println(stream.flatMap(x => cons(x + 5, cons(x + 6, empty))).toList)
-  println(fibs.take(7).toList.last)
+  println(fibs.take(7).toList)
+  println(from(5).take(7).toList)
+  println(fromViaUnfold(5).take(7).toList)
+
+
+  println("FIB VIA UNFOLD " + fibViaUnfold.take(7).toList.last)
+  println("MAP VIA UNFOLD " + stream.mapViaUnfold(_ * 10).take(5).toList)
+  println("TAILS VIA UNFOLD " + stream.tails.map(_.toList).toList)
 }
 
 sealed trait Stream[+A] {
@@ -80,7 +89,47 @@ sealed trait Stream[+A] {
     foldRight(f)((a, b) => cons(a, b))
   def flatMap[B](f: A => Stream[B]): Stream[B] =
     foldRight(empty[B])((a, b) => f(a).append(b))
+
+
+  def mapViaUnfold[B](f: A => B): Stream[B] = unfold(this) {
+    case Cons(h, t) => Some((f(h()), t()))
+    case Empty => None
+  }
+  def takeViaUnfold(count: Int): Stream[A] = unfold(count -> this){
+    case (c, Cons(h, t)) if c >= 0 => Some(h() -> (c - 1, t()))
+    case _ => None
+  }
+  def takeWhileViaUnfold(f : A => Boolean): Stream[A] = unfold(this) {
+    case Cons(h, t) if f(h()) => Some(h() -> t())
+    case _ => None
+  }
+
+  def zipWithViaUnfold[B, C](s2: Stream[B])(f: (A, B) => C): Stream[C] = unfold((this, s2)) {
+    case (Cons(h1, t1), Cons(h2, t2)) => Some(f(h1(), h2()) -> (t1(), t2()))
+    case _ => None
+  }
+
+  def zipAllViaUnfold[B](s2: Stream[B]): Stream[(Option[A], Option[B])] = unfold(this -> s2) {
+    case (Empty, Empty) => None
+    case (Empty, Cons(h, t)) => Some((None, Some(h())), empty -> t())
+    case (Cons(h, t), Empty) => Some((Some(h()), None), t() -> empty)
+    case (Cons(h1, t1), Cons(h2, t2)) => Some((Some(h1()), Some(h2())), t1() -> t2())
+  }
+
+  def startsWith[A](s: Stream[A]): Boolean = {
+    zipAllViaUnfold(s) takeWhile {
+      case (_, b) => b.isDefined
+    } forAll {
+      case (a, b) => a == b
+    }
+  }
+
+  def tails: Stream[Stream[A]] = unfold(this) {
+    case s @ Cons(h, t) => Some(s -> t())
+    case Empty => None
+  }.append(Stream(empty))
 }
+
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
 case object Empty extends Stream[Nothing]
 
@@ -100,8 +149,28 @@ object Stream {
       cons(f0, go(f1, f0 + f1))
     go(0, 1)
   }
-  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = ???
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+    case Some((a, s)) => Stream.cons(a, unfold(s)(f))
+    case None => Empty
+  }
+
+  def fibViaUnfold: Stream[Int] = unfold((0, 1)) {
+    case (a , b) => Some((a, (b, a + b)))
+    case _ => None
+  }
+
+    unfold(cons(0, cons(1, empty))) {
+    case Cons(h, t) => t().headOption.flatMap(v => Some(h() -> cons(v, cons(v + h(), empty))))
+    case Empty => None
+  }
+
+  def constantViaUnfold[A](a: A) = unfold(a)(a => Some(a -> a))
+  def fromViaUnfold(from: Int) = unfold(from)(v => Some((v, v + 1)))
+  def onesViaUnfold  = unfold(1)(x => Some(x -> x))
 
   def apply[A](as: A*): Stream[A] =
     if (as.isEmpty) empty else cons(as.head, apply(as.tail: _*))
 }
+
+
