@@ -28,5 +28,13 @@ object CandyMachine extends App {
       s <- get
     } yield (s.coins, s.candies)
 
-  println(simulateMachine(List(Turn, Coin, Turn, Coin, Turn)).run(Machine(true, 10, 0))._1)
+  def simulateMachine2(inputs: List[Input]): State[Machine, (Int, Int)] = {
+    sequence(inputs.map(input => modify[Machine](updateState(input, _))))
+      .flatMap(_ => get[Machine].map(m => m.candies -> m.coins))
+  }
+
+  println(
+    simulateMachine2(List(Turn, Coin, Turn, Coin, Turn))
+      .run(Machine(true, 10, 0))
+      ._1)
 }
