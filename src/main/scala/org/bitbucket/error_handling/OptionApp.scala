@@ -21,7 +21,7 @@ sealed trait Option[+A] {
   def flatMap[B](f: A => Option[B]): Option[B] = map(f) getOrElse None
 
   def filter(f: A => Boolean): Option[A] = this match {
-    case Some(v) if v => this
+    case Some(v) if f(v) => this
     case _            => None
   }
   def getOrElse[B >: A](default: => B): B = this match {

@@ -55,7 +55,7 @@ class ParallelismApp extends App {
 
   import Par._
 
-  def sum3(ints: IndexedSeq[Int]): Int = {
+  def sum3(ints: IndexedSeq[Int])(implicit ex: ExecutorService): Int = {
     import Par._
     if (ints.size <= 1) {
       ints.headOption.getOrElse(0)
@@ -63,7 +63,7 @@ class ParallelismApp extends App {
       val (l, r) = ints.splitAt(ints.length / 2)
       val sumL = unit(sum3(l))
       val sumR = unit(sum3(r))
-      run(sumL) + run(sumR)
+      run(ex)(map2(sumL, sumR)(_ + _)).get()
     }
   }
 

@@ -50,7 +50,7 @@ class MonoidApp extends App {
 
   def endoMonoid[A]: Monoid[A => A] = new Monoid[A => A] {
     def op(l: A => A, r: A => A): A => A = l andThen r
-    def zero: A => A = _
+    def zero: A => A = identity
   }
 
   def concatenate[A](as: List[A], m: Monoid[A]): A = as.foldLeft(m.zero)(m.op)
@@ -77,8 +77,8 @@ class MonoidApp extends App {
     }
   }
 
-  def par[A](m: Monoid[A]): Monoid[Par[A]]
-  def parFoldMap[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] = ???
+//  def par[A](m: Monoid[A]): Monoid[Par[A]]
+//  def parFoldMap[A, B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] = ???
 
   trait WC
   case class Stub(chars: String) extends WC

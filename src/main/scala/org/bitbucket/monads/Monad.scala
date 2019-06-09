@@ -15,15 +15,15 @@ trait Monad[F[_]] {
 
 
 object Monad {
-  val parMonad: Monad[Par] = new Monad[Par] {
-    override def unit[A](a: => A): Par[A] = ???
-    override def flatMap[A, B](fa: Par[A])(f: A => Par[B]): Par[B] = ???
-  }
+//  val parMonad: Monad[Par] = new Monad[Par] {
+//    override def unit[A](a: => A): Par[A] = ???
+//    override def flatMap[A, B](fa: Par[A])(f: A => Par[B]): Par[B] = ???
+//  }
 
-  val parserMonad: Monad[Parser] = new Monad[Parser] {
-    override def unit[A](a: => A): Parser[A] = ???
-    override def flatMap[A, B](fa: Parser[A])(f: A => Parser[B]): Parser[B] = ???
-  }
+//  val parserMonad: Monad[Parser] = new Monad[Parser] {
+//    override def unit[A](a: => A): Parser[A] = ???
+//    override def flatMap[A, B](fa: Parser[A])(f: A => Parser[B]): Parser[B] = ???
+//  }
 
   val optionMonad: Monad[Option] = new Monad[Option] {
     override def unit[A](a: => A): Option[A] = Option(a)

@@ -14,7 +14,7 @@ object Either {
   def right[A](v: A): Either[Nothing, A] = Right(v)
 }
 
-sealed trait Either[+E, +A] {
+sealed trait Either[+E, +A] { self =>
   def map[B](f: A => B): Either[E, B] = this match {
     case l @ Left(_)  => l
     case Right(value) => Right(f(value))
@@ -25,14 +25,14 @@ sealed trait Either[+E, +A] {
   }
   def orElse[EE >: E, B >: A](b: => Either[EE, B]): Either[EE, B] = this match {
     case Left(_) => b
-    case _       => this
+    case _       => self
   }
 
   def map2[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] =
     for {
-      t <- this
+      t <- self
       that <- b
-    } yield f(t, b)
+    } yield f(t, that)
 
   def sequence[E, A](l: List[Either[E, A]]): Either[E, List[A]] =
     traverse(l)(identity)
